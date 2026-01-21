@@ -88,30 +88,21 @@ export default function CodeChecker({
 
     const handlePaste = (e) => {
         const pastedText = e.clipboardData.getData('text');
-        if (pastedText.length > 50) {
-            e.preventDefault();
-            setWarningMessage(
-                '⚠️ CHEATING DETECTED: Large paste blocked! Type your code yourself.'
-            );
-            setShowWarning(true);
-            recordCheatAttempt(problemId);
-            console.warn(
-                `Paste attempt blocked: ${pastedText.length} characters`
-            );
-            setTimeout(() => setShowWarning(false), 5000);
-        }
+        if (pastedText.length === 0) return;
+        setWarningMessage('Cheating detected: paste logged.');
+        setShowWarning(true);
+        recordCheatAttempt(problemId);
+        console.warn(`Paste attempt logged: ${pastedText.length} characters`);
+        setTimeout(() => setShowWarning(false), 5000);
     };
 
     const handleCopy = (e) => {
         const selectedText = window.getSelection().toString();
-        if (selectedText.length > 100) {
-            setWarningMessage(
-                '⚠️ WARNING: Copying large amounts of text detected. Are you trying to cheat?'
-            );
-            setShowWarning(true);
-            recordCheatAttempt(problemId);
-            setTimeout(() => setShowWarning(false), 4000);
-        }
+        if (selectedText.length === 0) return;
+        setWarningMessage('Cheating detected: copy logged.');
+        setShowWarning(true);
+        recordCheatAttempt(problemId);
+        setTimeout(() => setShowWarning(false), 4000);
     };
 
     const handleCodeChange = (e) => {
@@ -204,26 +195,42 @@ export default function CodeChecker({
     }, []);
 
     const handleContextMenu = (e) => {
+        const isTextarea = e.target?.closest?.('textarea');
+        if (isTextarea) {
+            setWarningMessage('Cheating detected: context menu used.');
+            setShowWarning(true);
+            recordCheatAttempt(problemId);
+            setTimeout(() => setShowWarning(false), 3000);
+            return;
+        }
         e.preventDefault();
-        setWarningMessage('⚠️ Right-click disabled. Type your code manually!');
+        setWarningMessage('Right-click disabled. Type your code manually.');
         setShowWarning(true);
         setTimeout(() => setShowWarning(false), 3000);
     };
 
     const handleProblemCopy = (e) => {
+        const isTextarea = e.target?.closest?.('textarea');
+        if (isTextarea) return;
         e.preventDefault();
         setWarningMessage(
-            'ƒsÿ‹,? Copying the problem is disabled. Please read and solve it here.'
+            'Copying the problem is disabled. Please read and solve it here.'
         );
         setShowWarning(true);
         setTimeout(() => setShowWarning(false), 3000);
     };
 
     const formatTestInput = (input) => {
-        if (Array.isArray(input) && input.length === 1) {
+        if (!Array.isArray(input)) {
+            return JSON.stringify(input);
+        }
+        if (input.length === 0) {
+            return '[]';
+        }
+        if (input.length === 1) {
             return JSON.stringify(input[0]);
         }
-        return JSON.stringify(input);
+        return input.map((arg) => JSON.stringify(arg)).join(', ');
     };
 
     const runCode = async () => {

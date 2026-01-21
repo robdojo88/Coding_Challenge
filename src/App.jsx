@@ -25,7 +25,7 @@ export default function App() {
     const [elapsedTime, setElapsedTime] = useState(0);
     const [difficulty, setDifficulty] = useState(null);
     const [showClue, setShowClue] = useState(false);
-    const EXAM_DURATION = 30; // minutes
+    const EXAM_DURATION = 230; // minutes
 
     // Check authentication state on mount
     useEffect(() => {
